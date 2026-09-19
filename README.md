@@ -1,55 +1,112 @@
-# temrrut_risk_hesaplama
-Bu proje, UCI German Credit Dataset verilerini kullanarak, bankacılık sektöründe kredi temerrüt riskini (default risk) tahmin etmek ve kredi onay süreçlerini optimize etmek amacıyla geliştirilmiştir.
+# Credit Risk Analysis and Financial Decision Support System
 
-# 💳 Kredi Risk Analizi ve Finansal Karar Destek Sistemi
+This project is an end-to-end machine learning solution developed to predict **credit default risk** and support credit approval decisions in the banking sector using the **UCI German Credit Dataset**.
 
-Bu proje, bankacılık sektöründe kredi temerrüt riskini tahmin etmek ve kredi onay süreçlerini optimize etmek amacıyla geliştirilmiş uçtan uca bir makine öğrenmesi çözümüdür. Projenin temel odağı, sadece istatistiksel doğruluk değil, hatalı kararların finansal maliyetini minimize eden bir **İş Değeri (Business Value)** motoru oluşturmaktır.
+The main focus is not only statistical predictive performance, but also the financial consequences of incorrect decisions. The project therefore incorporates a **Business Value** framework that assigns different costs and benefits to different types of credit decisions.
 
-## 📈 Proje Özeti
-Sistem, UCI German Credit Dataset üzerindeki verileri kullanarak müşterilerin risk profilini analiz eder. Model seçimi ve optimizasyon süreci, bankanın uğrayabileceği maksimum zararı (False Negative) baskılayacak şekilde tasarlanmıştır.
+## Project Overview
 
-## 🛠️ Teknik Mimari ve Model
-Projede gürültüye karşı dayanıklılığı (robustness) kanıtlanmış olan **Random Forest** algoritması tercih edilmiştir. 
+The system analyzes customer risk profiles using data from the UCI German Credit Dataset.
 
-* **Model Parametreleri:** * `max_depth: 4` (Aşırı öğrenmeyi ve gürültüyü engellemek için sığ ağaç yapısı)
-    * `min_samples_leaf: 11`
-    * `n_estimators: 136`
-* **Pipeline:** Veri ön işleme aşamasında `StandardScaler` ve `OneHotEncoder` otomatikleştirilmiş bir yapıdadır.
-* **Strateji:** "Büyüme Odaklı" strateji ile 0.518 eşik değeri (threshold) belirlenmiştir.
+Model selection and threshold optimization are designed around a cost-sensitive decision framework, with particular emphasis on reducing the financial impact of **False Negative (FN)** decisions, where a high-risk customer is incorrectly approved.
 
-## 📊 Performans Sonuçları
+## Technical Architecture and Model
 
-Modelin test verisi üzerindeki başarı metrikleri aşağıdadır:
+The project uses a **Random Forest** classifier selected for its robustness to noisy and heterogeneous tabular data.
 
-| Metrik | Sonuç | Tanım |
-| :--- | :--- | :--- |
-| **ROC-AUC** | **0.7829** | Ayırt etme gücü (Sektör standardı üstü) |
-| **Bad Recall** | **%76.7** | Batacak kredileri önceden yakalama oranı |
-| **Good Precision** | **%87.9** | Onaylanan kredilerin geri dönüş güvenilirliği |
-| **Onay Oranı** | **%74.0** | Pazar payını koruma kapasitesi |
+### Model Parameters
 
-## 💰 İş Değeri ve Maliyet Analizi
-Model, aşağıdaki maliyet fonksiyonu baz alınarak optimize edilmiştir:
-* **Kötü Krediyi Engelleme (TP):** +1000 Birim (Zarar Önleme)
-* **İyi Krediyi Onaylama (TN):** +200 Birim (Net Kâr)
-* **İyi Krediyi Reddetme (FP):** -150 Birim (Fırsat Kaybı)
-* **Kötü Krediyi Onaylama (FN):** -5000 Birim (Büyük Zarar)
+* `max_depth: 4` — shallow trees to reduce overfitting and sensitivity to noise
+* `min_samples_leaf: 11`
+* `n_estimators: 136`
 
-## ⚖️ Fairness (Adalet) Analizi
-Modelin etik standartlara uygunluğu denetlenmiştir. `Attribute9` ve `Attribute17` gibi hassas değişkenler üzerinde yapılan analizler, modelin karar verme süreçlerinde gruplar arası dengeyi ne ölçüde koruduğunu gösterir. Belirlenen %35.0 Disparate Impact skoru, canlı sistemlerde insan denetimli (Human-in-the-loop) bir mekanizmanın gerekliliğine işaret etmektedir.
+### Preprocessing Pipeline
 
-## 🚀 Kurulum ve Kullanım
+The preprocessing pipeline automatically handles numerical and categorical variables using:
 
-1. Depoyu yerel makinenize indirin:
-   ```bash
-   git clone [https://github.com/kullaniciadi/proje-adi.git](https://github.com/kullaniciadi/proje-adi.git)
+* `StandardScaler`
+* `OneHotEncoder`
 
-   pip install pandas numpy scikit-learn matplotlib seaborn ucimlrepo
-   python credit_risk_analysis.py
-   Sonuç
-Bu çalışma, veri biliminin finansal karar süreçlerine entegrasyonu için güvenilir bir prototip sunmaktadır. Model, sığ ağaç yapısı sayesinde yeni verilerde yüksek genelleme yeteneğine sahiptir ve banka karlılığını risk odaklı bir yaklaşımla korumaktadır.
+### Decision Strategy
 
+A **Growth-Oriented** decision strategy was used, with a classification threshold of **0.518**.
 
----
+## Performance Results
 
+The following results were obtained on the test dataset:
 
+| Metric             |   Result   | Description                                         |
+| :----------------- | :--------: | :-------------------------------------------------- |
+| **ROC-AUC**        | **0.7829** | Overall discrimination performance                  |
+| **Bad Recall**     |  **76.7%** | Proportion of defaulting loans correctly identified |
+| **Good Precision** |  **87.9%** | Reliability of predictions classified as good       |
+| **Approval Rate**  |  **74.0%** | Proportion of applications approved                 |
+
+## Business Value and Cost Analysis
+
+The model was optimized using the following decision-cost framework:
+
+| Decision                       | Business Value |
+| :----------------------------- | -------------: |
+| **Preventing a Bad Loan (TP)** |   +1,000 units |
+| **Approving a Good Loan (TN)** |     +200 units |
+| **Rejecting a Good Loan (FP)** |     -150 units |
+| **Approving a Bad Loan (FN)**  |   -5,000 units |
+
+This framework reflects the asymmetric financial consequences of credit decisions rather than treating all classification errors as equally costly.
+
+## Fairness Analysis
+
+The project also includes a fairness analysis to examine whether model decisions differ across groups associated with selected attributes, including `Attribute9` and `Attribute17`.
+
+The analysis produced a **35.0% Disparate Impact score** under the evaluated setup. This result highlights the importance of additional fairness monitoring and **human-in-the-loop review** when applying similar models in real-world credit decision systems.
+
+Fairness metrics should be interpreted in the context of the dataset, selected attributes, threshold, and evaluation methodology rather than as standalone measures of overall model fairness.
+
+## Installation and Usage
+
+Clone the repository:
+
+```bash
+git clone https://github.com/USERNAME/REPOSITORY.git
+cd REPOSITORY
+```
+
+Install the required dependencies:
+
+```bash
+pip install pandas numpy scikit-learn matplotlib seaborn ucimlrepo
+```
+
+Run the analysis:
+
+```bash
+python credit_risk_analysis.py
+```
+
+## Technologies
+
+* Python
+* pandas
+* NumPy
+* scikit-learn
+* Matplotlib
+* Seaborn
+* ucimlrepo
+* Random Forest
+* Cost-sensitive decision analysis
+* Fairness analysis
+
+## Dataset
+
+This project uses the **UCI German Credit Dataset**.
+
+The dataset contains customer-level financial and demographic attributes used to classify credit applicants according to their credit risk.
+
+## Conclusion
+
+This project demonstrates how machine learning can be combined with **cost-sensitive decision analysis** and **fairness evaluation** in a financial risk setting.
+
+Rather than optimizing solely for predictive accuracy, the project evaluates how different classification decisions can affect financial outcomes and examines potential differences in model behavior across groups.
+
+The resulting system serves as a research and educational prototype for exploring machine learning, credit risk modeling, business-value optimization, and responsible AI considerations in financial decision-making.
